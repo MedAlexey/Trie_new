@@ -67,6 +67,5 @@ public class tests {
         Assert.assertFalse(trie.find("словарь"));
         Assert.assertFalse(trie.find("Тактика"));
         Assert.assertFalse(trie.find("танк"));
-
     }
 }
