@@ -1,12 +1,18 @@
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.Assert;
 
+import java.util.ArrayList;
+
 public class tests {
 
-    Trie trie = new Trie();
+    private Trie trie = new Trie();
 
     @Test
     public void addAndFind() {
+
+        trie.add("слоны");
+        Assert.assertTrue(trie.find("слоны"));
 
         trie.add("слон");
         Assert.assertTrue(trie.find("слон"));
@@ -67,5 +73,36 @@ public class tests {
         Assert.assertFalse(trie.find("словарь"));
         Assert.assertFalse(trie.find("Тактика"));
         Assert.assertFalse(trie.find("танк"));
+    }
+
+
+    @Test
+    public void findStrings(){
+        trie.add("king");
+        trie.add("know");
+        trie.add("crocodile");
+        trie.add("knife");
+        trie.add("star");
+        trie.add("transport");
+        trie.add("string");
+        trie.add("stranger");
+        trie.add("starter");
+        trie.add("street");
+        trie.add("train");
+
+        ArrayList<String> arr = new ArrayList<String>();
+        arr.add("know");
+        Assert.assertEquals(arr, trie.findStrings("kno"));
+
+        arr.clear();
+        arr.add("king");
+        arr.add("know");
+        arr.add("knife");
+        Assert.assertEquals(arr, trie.findStrings("k"));
+
+        arr.clear();
+        arr.add("train");
+        Assert.assertEquals(arr,trie.findStrings("train"));
+
     }
 }
