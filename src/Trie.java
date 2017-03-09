@@ -139,10 +139,7 @@ public class Trie {
         TrieNode curNode = mainTrie.get(0).get(0);   //начальное положение
         string = string.toLowerCase();
 
-        if (!find(string)) {
-            System.out.print("Такого слова нет");
-            return;
-        }
+        if (!find(string)) throw new IllegalArgumentException("Такого слова нет.");
 
         for (int i = 0; i < string.length(); i++) {    //доходим до последней буквы слова
             Character nextChar = new Character(string.charAt(i));
@@ -190,14 +187,11 @@ public class Trie {
         }
     }
 
-    public void findStrings(String prefix){     //поиск по префиксу
+    public ArrayList<String> findStrings(String prefix){     //поиск по префиксу
         TrieNode curNode = mainTrie.get(0).get(0);
         prefix = prefix.toLowerCase();
 
-        if (!prefixExist(prefix)){
-            System.out.println("Дерево не содержит такого префикса.");
-            return;
-        }
+        if (!prefixExist(prefix)) throw new IllegalArgumentException("Дерево не содержит такого префикса.");
 
         for (int i = 0; i < prefix.length(); i++){      //доходим до последней буквы слова
             Character letter = new Character(prefix.charAt(i));
@@ -205,21 +199,28 @@ public class Trie {
             while(!curNode.info.equals(letter) && curNode.hasBrother) curNode = curNode.brother;
         }
 
-        if (curNode.endOfWord) System.out.println(prefix);   //если префикс является словом
+        ArrayList<String> collector = new ArrayList<String>(); //собирает строкис таким префиксом
+
+        if (curNode.endOfWord) {
+            collector.add(prefix);
+            return collector;   //если префикс является словом
+        }
 
         String result = prefix;
 
-        addLetter(curNode,result);
+        addLetter(curNode,result,collector);
+        return collector;
 
     }
 
-    private void addLetter(TrieNode curNode, String result){
+    private void addLetter(TrieNode curNode, String result, ArrayList<String> collector){
 
         if (curNode.hasSon){
             curNode = curNode.son;
             if (curNode.info != "-") result = result + curNode.info;
-            if (curNode.endOfWord) System.out.println(result);
-            addLetter(curNode, result);
+            if (curNode.endOfWord) collector.add(result);
+            
+            addLetter(curNode, result, collector);
         }
 
         while (curNode.hasBrother){
@@ -228,10 +229,11 @@ public class Trie {
                 result = result.substring(0,result.length()-1);
                 result = result + curNode.info;
             }
-            if (curNode.endOfWord) System.out.println(result);
-            addLetter(curNode, result);
+            if (curNode.endOfWord) collector.add(result);
+            addLetter(curNode, result, collector);
         }
     }
+
 
     private boolean prefixExist(String prefix){
 
