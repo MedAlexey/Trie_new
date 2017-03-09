@@ -8,7 +8,7 @@ import java.util.List;
 public class Trie {
 
     static class TrieNode {
-        Object info;         // очередная буква или связанный объект
+        Object info;         // очередная буква или "-"
         TrieNode son;        // указатель на следующий уровень
         TrieNode brother;    //указатель на следующий узел того же уровня
         TrieNode father;     //отец
@@ -39,12 +39,12 @@ public class Trie {
     }
 
 
-    ArrayList<ArrayList<TrieNode>> mainTrie = new ArrayList<ArrayList<TrieNode>>(); //дерево
+    private ArrayList<ArrayList<TrieNode>> mainTrie = new ArrayList<ArrayList<TrieNode>>(); //дерево
 
 
     public void add(String string) {  //добавление
 
-        /** сли в дереве нет даже корня, то создаём корень
+        /** если в дереве нет даже корня, то создаём корень
          */
         if (mainTrie.size() == 0) {
             ArrayList<TrieNode> firstLvl = new ArrayList<TrieNode>();
@@ -53,8 +53,7 @@ public class Trie {
             mainTrie.add(firstLvl);
         }
 
-        /** начальное положение в корне
-         */
+
         TrieNode curNode = mainTrie.get(0).get(0);  //узел, в котором мы находимся
         string = string.toLowerCase();
 
@@ -140,7 +139,10 @@ public class Trie {
         TrieNode curNode = mainTrie.get(0).get(0);   //начальное положение
         string = string.toLowerCase();
 
-        if (!find(string)) System.out.print("Такого слова нет");
+        if (!find(string)) {
+            System.out.print("Такого слова нет");
+            return;
+        }
 
         for (int i = 0; i < string.length(); i++) {    //доходим до последней буквы слова
             Character nextChar = new Character(string.charAt(i));
@@ -188,8 +190,14 @@ public class Trie {
         }
     }
 
-    public void findStrings(String prefix){
+    public void findStrings(String prefix){     //поиск по префиксу
         TrieNode curNode = mainTrie.get(0).get(0);
+        prefix = prefix.toLowerCase();
+
+        if (!prefixExist(prefix)){
+            System.out.println("Дерево не содержит такого префикса.");
+            return;
+        }
 
         for (int i = 0; i < prefix.length(); i++){      //доходим до последней буквы слова
             Character letter = new Character(prefix.charAt(i));
@@ -197,85 +205,51 @@ public class Trie {
             while(!curNode.info.equals(letter) && curNode.hasBrother) curNode = curNode.brother;
         }
 
-        //StringBuilder result = new StringBuilder(prefix);
+        if (curNode.endOfWord) System.out.println(prefix);   //если префикс является словом
+
         String result = prefix;
 
         addLetter(curNode,result);
 
-        /**
-         * спуститься вниз дерева по буквам префикса
-         *
-         * пройтись( рекурсивно) по всем ветвям этой буквы, собирая слова и выводя их(наткнувшись на последнюю букву)
-         */
     }
 
-
-    /**
-     * со строкой
-     * @param curNode
-     * @param result
-     */
     private void addLetter(TrieNode curNode, String result){
-        if (curNode.hasSon){
-            //curNode = curNode.son;
-            if (curNode.son.hasSon || curNode.son.endOfWord) result = result + curNode.son.info.toString();
-            if (curNode.son.endOfWord) System.out.println(result);
-            addLetter(curNode.son,result);
-        }
 
-
-        while(curNode.hasBrother) {
-            //curNode = curNode.brother;
-            if (curNode.brother.hasSon || curNode.brother.endOfWord){
-                result = result.substring(0,result.length()-1);
-                result = result + curNode.brother.info.toString();
-            }
-            addLetter(curNode.brother, result);
-        }
-       /* for (int i = 0; i < mainTrie.get(curNode.level).size(); i++){
-           if (curNode.hasBrother) {
-               curNode = curNode.brother;
-               result = result.substring(0,result.length()-1);
-               if (curNode.hasSon || curNode.endOfWord){
-                   result = result + curNode.info.toString();
-               }
-               addLetter(curNode, result);
-           }
-        }*/
-    }
-
-
-    /**
-     * со стрингбилдером
-     */
-/*    private void addLetter(TrieNode curNode, StringBuilder builder){
         if (curNode.hasSon){
             curNode = curNode.son;
-            if (curNode.hasSon || curNode.endOfWord) builder.append(curNode.info);
-            if (curNode.endOfWord) {
-                String result = builder.toString();
-                System.out.println(result);
-            }
-            addLetter(curNode, builder);
+            if (curNode.info != "-") result = result + curNode.info;
+            if (curNode.endOfWord) System.out.println(result);
+            addLetter(curNode, result);
         }
 
-        while(curNode.hasBrother){
+        while (curNode.hasBrother){
             curNode = curNode.brother;
-            builder.deleteCharAt(builder.length()-1);
-            if (curNode.hasSon || curNode.endOfWord){
-                builder.append(curNode.info);
+            if (curNode.info != "-") {
+                result = result.substring(0,result.length()-1);
+                result = result + curNode.info;
             }
-            addLetter(curNode, builder);
+            if (curNode.endOfWord) System.out.println(result);
+            addLetter(curNode, result);
         }
-        /*for (int i = 0; i < mainTrie.get(curNode.level).size()-1; i++){
-            if (curNode.hasBrother){
+    }
+
+    private boolean prefixExist(String prefix){
+
+        if (mainTrie.size() == 0) return false;
+
+        TrieNode curNode = mainTrie.get(0).get(0);   //начинаем с вершины
+
+        for (int i = 0; i < prefix.length(); i++) {
+            Character letter = new Character(prefix.charAt(i));
+            if (curNode.hasSon) curNode = curNode.son;                 //переходим на нижний уровень
+            else return false;
+
+            while (!curNode.info.equals(letter) && curNode.hasBrother) {   //пока не найдём нужную букву в уровне
                 curNode = curNode.brother;
-                if (curNode.hasSon || curNode.endOfWord){
-                    builder.deleteCharAt(builder.length()-1);
-                    builder.append(curNode.info);
-                }
-                addLetter(curNode,builder);
             }
+
+            if (!curNode.info.equals(letter)) return false;   //если дошли до конца уровня и не нашли след букву
         }
-    }*/
+        return true;
+    }
 }
