@@ -42,38 +42,24 @@ public class Trie {
     }
 
 
-    private ArrayList<ArrayList<TrieNode>> mainTrie = new ArrayList<ArrayList<TrieNode>>(); //дерево
-
+    private TrieNode root = new TrieNode(null,null,null,null,false,0);
 
     public void add(String string) {  //добавление
 
-        /** если в дереве нет даже корня, то создаём корень
-         */
-        if (mainTrie.size() == 0) {
-            ArrayList<TrieNode> firstLvl = new ArrayList<TrieNode>();
-            TrieNode root = new TrieNode(null, null, null, null, false, 0);  //корень
-            firstLvl.add(root);
-            mainTrie.add(firstLvl);
-        }
-
-
-        TrieNode curNode = mainTrie.get(0).get(0);  //узел, в котором мы находимся
+        TrieNode curNode = root; //начинаем с вершины
         string = string.toLowerCase();
 
         for (int i = 0; i < string.length(); i++) {
             Character nextChar = new Character(string.charAt(i)); //берём следующую букву
 
-            if (curNode.level == 0) {
-                if (!curNode.hasSon()) {
-                    ArrayList<TrieNode> arr = new ArrayList<TrieNode>();
-                    TrieNode son = new TrieNode(nextChar, null, null, curNode, false, curNode.level + 1);
-                    if (i == string.length() - 1) son.endOfWord = true;
-                    arr.add(son);
-                    mainTrie.add(arr);
-                    curNode.son = mainTrie.get(curNode.level + 1).get(mainTrie.get(curNode.level + 1).size() - 1);
-                }
-                curNode = curNode.son;
-            }
+          if (curNode.level == 0){ //озможно можно заменить на ...== null
+              if (!curNode.hasSon()){
+                  TrieNode son = new TrieNode(nextChar,null,null, curNode,false,curNode.level+1);
+                  if (i == string.length() - 1) son.endOfWord = true;
+                  curNode.son = son;
+              }
+              curNode = curNode.son;
+          }
 
 
             while (!curNode.info.equals(nextChar) && curNode.hasBrother()) {  //идём по одному уровню
@@ -82,28 +68,21 @@ public class Trie {
 
 
             if (!curNode.info.equals(nextChar) && !curNode.hasBrother()) { //если дошли до конца уровня и не нашли букву, то добарляем брата
-                TrieNode brother = new TrieNode(nextChar, null, null, curNode.father, false, curNode.level);
-                if (i == string.length() - 1) brother.endOfWord = true;
-                mainTrie.get(curNode.level).add(brother);
-                curNode.brother = mainTrie.get(curNode.level).get(mainTrie.get(curNode.level).size() - 1); //прикрепляем брата
+
+                TrieNode brother = new TrieNode(nextChar,null,null, curNode.father,false,curNode.level);
+                if (i == string.length() -1 ) brother.endOfWord = true;
+                curNode.brother = brother;
                 curNode = curNode.brother;
             } else if (curNode.info.equals(nextChar) && (i == string.length() - 1)) { //если нашли букву и она последняя в слове
                 curNode.endOfWord = true;
             }
 
             if (curNode.hasSon()) curNode = curNode.son;       //переходим на след уровень
-            else if (i != string.length() - 1 && !curNode.hasSon()) {
+            else if (i != string.length() - 1 && !curNode.hasSon()) {  //если нет сына, то добавляем его
                 Character letter = new Character(string.charAt(i + 1));   //следующая буква слова
                 TrieNode son = new TrieNode(letter, null, null, curNode, false, curNode.level + 1);
 
-                if (mainTrie.size() > curNode.level + 1) mainTrie.get(curNode.level + 1).add(son);
-                else if (mainTrie.size() <= curNode.level + 1) {
-                    ArrayList<TrieNode> arr = new ArrayList<TrieNode>();
-                    arr.add(son);
-                    mainTrie.add(arr);
-                }
-
-                curNode.son = mainTrie.get(curNode.level + 1).get(mainTrie.get(curNode.level + 1).size() - 1);
+                curNode.son = son;
                 curNode = curNode.son;
 
             }
@@ -113,9 +92,8 @@ public class Trie {
 
 
     public boolean find(String string) {
-        if (mainTrie.size() == 0) return false;
 
-        TrieNode curNode = mainTrie.get(0).get(0);   //начинаем с вершины
+        TrieNode curNode = root;
         string = string.toLowerCase();
 
         for (int i = 0; i < string.length(); i++) {
@@ -135,8 +113,9 @@ public class Trie {
     }
 
 
-    public void delete(String string) {
-        TrieNode curNode = mainTrie.get(0).get(0);   //начальное положение
+    public void delete(String string) throws IllegalArgumentException {
+
+        TrieNode curNode = root;
         string = string.toLowerCase();
 
         if (!find(string)) throw new IllegalArgumentException("Такого слова нет.");
@@ -153,7 +132,6 @@ public class Trie {
             if (!curNode.hasBrother() && !curNode.hasSon()) {     //если буква правая крайняя на уровне
                 curNode = curNode.father;
                 if(!curNode.son.hasBrother()){      // если сын единственный
-                    curNode.son.info = '-';
                     curNode.son = null;
                 }
                 else {                              //если сын не единственный
@@ -162,7 +140,6 @@ public class Trie {
                     while (tmpCurNode.brother.hasBrother()) {   //доходим до предпоследнего брата
                         tmpCurNode = tmpCurNode.brother;
                     }
-                    tmpCurNode.brother.info = '-';
                     tmpCurNode.brother = null;
                 }
             }
@@ -170,23 +147,27 @@ public class Trie {
                 curNode.endOfWord = false;
                 curNode = curNode.father;
             }
-            else if (!curNode.hasSon() && curNode.hasBrother()){
-                curNode.info = '-';
-                curNode.endOfWord = false;
+            else if (!curNode.father.son.info.equals(curNode.info) && !curNode.hasSon() && curNode.hasBrother()){ //если не кайняя левая на уровне
+
+                TrieNode tmpCurNode = curNode.father.son;
+                while(!tmpCurNode.brother.info.equals(curNode.info)){
+                    tmpCurNode = tmpCurNode.brother;
+                }
+                tmpCurNode.brother = tmpCurNode.brother.brother;
                 curNode = curNode.father;
             }
-
-            //удаляем ненужные крайние элементы на уровнях
-            while(mainTrie.get(i).size() > 0 && mainTrie.get(i).get(mainTrie.get(i).size()-1).info == '-'){
-                mainTrie.get(i).remove(mainTrie.get(i).size()-1);
+            else if (curNode.father.son.info.equals(curNode.info) && !curNode.hasSon() && curNode.hasBrother()){
+                curNode = curNode.father;
+                curNode.son = curNode.son.brother;
             }
-            if (mainTrie.get(i).size() == 0) mainTrie.remove(i);  //если уровень пустой, удаляем
+            else if (curNode.hasSon()) curNode = curNode.father;
 
         }
     }
 
-    public List<String> findStrings(String prefix){     //поиск по префиксу
-        TrieNode curNode = mainTrie.get(0).get(0);
+    public List<String> findStrings(String prefix) throws IllegalArgumentException{     //поиск по префиксу
+
+        TrieNode curNode = root;
         prefix = prefix.toLowerCase();
 
         if (!prefixExist(prefix)) throw new IllegalArgumentException("Дерево не содержит такого префикса.");
@@ -215,7 +196,7 @@ public class Trie {
 
         if (curNode.hasSon()){
             curNode = curNode.son;
-            if (curNode.info != '-') result = result + curNode.info;
+            result = result + curNode.info;
             if (curNode.endOfWord) collector.add(result);
             
             addLetter(curNode, result, collector);
@@ -223,10 +204,9 @@ public class Trie {
 
         while (curNode.hasBrother()){
             curNode = curNode.brother;
-            if (curNode.info != '-') {
-                result = result.substring(0,result.length()-1);
-                result = result + curNode.info;
-            }
+            result = result.substring(0,result.length()-1);
+            result = result + curNode.info;
+
             if (curNode.endOfWord) collector.add(result);
             addLetter(curNode, result, collector);
         }
@@ -235,9 +215,7 @@ public class Trie {
 
     private boolean prefixExist(String prefix){
 
-        if (mainTrie.size() == 0) return false;
-
-        TrieNode curNode = mainTrie.get(0).get(0);   //начинаем с вершины
+        TrieNode curNode = root;   //начинаем с вершины
 
         for (int i = 0; i < prefix.length(); i++) {
             Character letter = new Character(prefix.charAt(i));
