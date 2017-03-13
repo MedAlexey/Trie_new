@@ -8,36 +8,44 @@ public class tests {
 
     private Trie trie = new Trie();
 
+    @Before
+    public void add(){
+        trie.add("king");
+        trie.add("know");
+        trie.add("crocodile");
+        trie.add("knife");
+        trie.add("star");
+        trie.add("transport");
+        trie.add("string");
+        trie.add("stranger");
+        trie.add("starter");
+        trie.add("street");
+        trie.add("train");
+
+        trie.add("слон");
+        trie.add("слово");
+        trie.add("словарь");
+        trie.add("ТАКТИКА");
+        trie.add("танк");
+        trie.add("слоны");
+    }
+
+
     @Test
     public void addAndFind() {
 
-        trie.add("слоны");
         Assert.assertTrue(trie.find("слоны"));
-
-        trie.add("слон");
         Assert.assertTrue(trie.find("слон"));
-
-        trie.add("слово");
         Assert.assertTrue(trie.find("слово"));
-
-        trie.add("словарь");
         Assert.assertTrue(trie.find("словарь"));
-
-        trie.add("ТАКТИКА");
         Assert.assertTrue(trie.find("Тактика"));
-
-        trie.add("танк");
         Assert.assertTrue(trie.find("танк"));
+        Assert.assertFalse(trie.find("катер"));
     }
 
-    @Test
-    public void delete(){
 
-        trie.add("слон");
-        trie.add("слово");
-        trie.add("словарь");
-        trie.add("ТАКТИКА");
-        trie.add("танк");
+    @Test
+    public void delete() throws IllegalArgumentException{
 
         trie.delete("слово");
         Assert.assertTrue(trie.find("слон"));
@@ -78,17 +86,6 @@ public class tests {
 
     @Test
     public void findStrings(){
-        trie.add("king");
-        trie.add("know");
-        trie.add("crocodile");
-        trie.add("knife");
-        trie.add("star");
-        trie.add("transport");
-        trie.add("string");
-        trie.add("stranger");
-        trie.add("starter");
-        trie.add("street");
-        trie.add("train");
 
         ArrayList<String> arr = new ArrayList<String>();
         arr.add("know");
