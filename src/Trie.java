@@ -60,12 +60,12 @@ public class Trie {
           }
 
 
-            while (!(curNode.info == nextChar) && curNode.hasBrother()) {  //идём по одному уровню
+            while (curNode.info != nextChar && curNode.hasBrother()) {  //идём по одному уровню
                 curNode = curNode.brother;
             }
 
 
-            if (!(curNode.info == nextChar) && !curNode.hasBrother()) { //если дошли до конца уровня и не нашли букву, то добарляем брата
+            if (curNode.info != nextChar && !curNode.hasBrother()) { //если дошли до конца уровня и не нашли букву, то добарляем брата
 
                 TrieNode brother = new TrieNode(nextChar,null,null, curNode.father,false,curNode.level);
                 if (i == string.length() -1 ) brother.endOfWord = true;
@@ -99,11 +99,11 @@ public class Trie {
             if (curNode.hasSon()) curNode = curNode.son;                 //переходим на нижний уровень
             else return false;
 
-            while (!(curNode.info == nextChar) && curNode.hasBrother()) {   //пока не найдём нужную букву в уровне
+            while (curNode.info != nextChar && curNode.hasBrother()) {   //пока не найдём нужную букву в уровне
                 curNode = curNode.brother;
             }
 
-            if (!(curNode.info == nextChar)) return false;   //если дошли до конца уровня и не нашли след букву
+            if (curNode.info != nextChar) return false;   //если дошли до конца уровня и не нашли след букву
             if ((i == string.length() - 1) && !curNode.endOfWord)
                 return false;  //если нашли,но поледняя буква не последняя
         }
@@ -121,7 +121,7 @@ public class Trie {
         for (int i = 0; i < string.length(); i++) {    //доходим до последней буквы слова
             char nextChar = string.charAt(i);
             curNode = curNode.son;
-            while (curNode.hasBrother() && !(curNode.info == nextChar)) {
+            while (curNode.hasBrother() && curNode.info != nextChar) {
                 curNode = curNode.brother;
             }
         }
@@ -173,7 +173,7 @@ public class Trie {
         for (int i = 0; i < prefix.length(); i++){      //доходим до последней буквы слова
             char letter = prefix.charAt(i);
             curNode = curNode.son;
-            while(!(curNode.info == letter) && curNode.hasBrother()) curNode = curNode.brother;
+            while(curNode.info != letter && curNode.hasBrother()) curNode = curNode.brother;
         }
 
         ArrayList<String> collector = new ArrayList<String>(); //собирает строкис таким префиксом
@@ -220,11 +220,11 @@ public class Trie {
             if (curNode.hasSon()) curNode = curNode.son;                 //переходим на нижний уровень
             else return false;
 
-            while (!(curNode.info == letter) && curNode.hasBrother()) {   //пока не найдём нужную букву в уровне
+            while (curNode.info != letter && curNode.hasBrother()) {   //пока не найдём нужную букву в уровне
                 curNode = curNode.brother;
             }
 
-            if (!(curNode.info == letter)) return false;   //если дошли до конца уровня и не нашли след букву
+            if (curNode.info != letter) return false;   //если дошли до конца уровня и не нашли след букву
         }
         return true;
     }
