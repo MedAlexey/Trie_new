@@ -1,6 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -50,7 +48,7 @@ public class Trie {
         string = string.toLowerCase();
 
         for (int i = 0; i < string.length(); i++) {
-            Character nextChar = new Character(string.charAt(i)); //берём следующую букву
+            char nextChar = string.charAt(i);// берём следующую букву
 
           if (curNode.level == 0){ //озможно можно заменить на ...== null
               if (!curNode.hasSon()){
@@ -62,24 +60,24 @@ public class Trie {
           }
 
 
-            while (!curNode.info.equals(nextChar) && curNode.hasBrother()) {  //идём по одному уровню
+            while (!(curNode.info == nextChar) && curNode.hasBrother()) {  //идём по одному уровню
                 curNode = curNode.brother;
             }
 
 
-            if (!curNode.info.equals(nextChar) && !curNode.hasBrother()) { //если дошли до конца уровня и не нашли букву, то добарляем брата
+            if (!(curNode.info == nextChar) && !curNode.hasBrother()) { //если дошли до конца уровня и не нашли букву, то добарляем брата
 
                 TrieNode brother = new TrieNode(nextChar,null,null, curNode.father,false,curNode.level);
                 if (i == string.length() -1 ) brother.endOfWord = true;
                 curNode.brother = brother;
                 curNode = curNode.brother;
-            } else if (curNode.info.equals(nextChar) && (i == string.length() - 1)) { //если нашли букву и она последняя в слове
+            } else if (curNode.info == nextChar && (i == string.length() - 1)) { //если нашли букву и она последняя в слове
                 curNode.endOfWord = true;
             }
 
             if (curNode.hasSon()) curNode = curNode.son;       //переходим на след уровень
             else if (i != string.length() - 1 && !curNode.hasSon()) {  //если нет сына, то добавляем его
-                Character letter = new Character(string.charAt(i + 1));   //следующая буква слова
+                char letter = string.charAt(i+1); // следующая буква слова
                 TrieNode son = new TrieNode(letter, null, null, curNode, false, curNode.level + 1);
 
                 curNode.son = son;
@@ -97,15 +95,15 @@ public class Trie {
         string = string.toLowerCase();
 
         for (int i = 0; i < string.length(); i++) {
-            Character nextChar = new Character(string.charAt(i));
+            char nextChar = string.charAt(i);
             if (curNode.hasSon()) curNode = curNode.son;                 //переходим на нижний уровень
             else return false;
 
-            while (!curNode.info.equals(nextChar) && curNode.hasBrother()) {   //пока не найдём нужную букву в уровне
+            while (!(curNode.info == nextChar) && curNode.hasBrother()) {   //пока не найдём нужную букву в уровне
                 curNode = curNode.brother;
             }
 
-            if (!curNode.info.equals(nextChar)) return false;   //если дошли до конца уровня и не нашли след букву
+            if (!(curNode.info == nextChar)) return false;   //если дошли до конца уровня и не нашли след букву
             if ((i == string.length() - 1) && !curNode.endOfWord)
                 return false;  //если нашли,но поледняя буква не последняя
         }
@@ -121,9 +119,9 @@ public class Trie {
         if (!find(string)) throw new IllegalArgumentException("Такого слова нет.");
 
         for (int i = 0; i < string.length(); i++) {    //доходим до последней буквы слова
-            Character nextChar = new Character(string.charAt(i));
+            char nextChar = string.charAt(i);
             curNode = curNode.son;
-            while (curNode.hasBrother() && !curNode.info.equals(nextChar)) {
+            while (curNode.hasBrother() && !(curNode.info == nextChar)) {
                 curNode = curNode.brother;
             }
         }
@@ -173,9 +171,9 @@ public class Trie {
         if (!prefixExist(prefix)) throw new IllegalArgumentException("Дерево не содержит такого префикса.");
 
         for (int i = 0; i < prefix.length(); i++){      //доходим до последней буквы слова
-            Character letter = new Character(prefix.charAt(i));
+            char letter = prefix.charAt(i);
             curNode = curNode.son;
-            while(!curNode.info.equals(letter) && curNode.hasBrother()) curNode = curNode.brother;
+            while(!(curNode.info == letter) && curNode.hasBrother()) curNode = curNode.brother;
         }
 
         ArrayList<String> collector = new ArrayList<String>(); //собирает строкис таким префиксом
@@ -218,15 +216,15 @@ public class Trie {
         TrieNode curNode = root;   //начинаем с вершины
 
         for (int i = 0; i < prefix.length(); i++) {
-            Character letter = new Character(prefix.charAt(i));
+            char letter = prefix.charAt(i);
             if (curNode.hasSon()) curNode = curNode.son;                 //переходим на нижний уровень
             else return false;
 
-            while (!curNode.info.equals(letter) && curNode.hasBrother()) {   //пока не найдём нужную букву в уровне
+            while (!(curNode.info == letter) && curNode.hasBrother()) {   //пока не найдём нужную букву в уровне
                 curNode = curNode.brother;
             }
 
-            if (!curNode.info.equals(letter)) return false;   //если дошли до конца уровня и не нашли след букву
+            if (!(curNode.info == letter)) return false;   //если дошли до конца уровня и не нашли след букву
         }
         return true;
     }
